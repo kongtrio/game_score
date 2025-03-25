@@ -72,10 +72,12 @@
             <div class="player-score">
                 <div>{{ match.player1 }}</div>
                 <div class="score-value">{{ total_player1 }}</div>
+                <div>胜率: {{ player1_win_rate }}%</div>
             </div>
             <div class="player-score">
                 <div>{{ match.player2 }}</div>
                 <div class="score-value">{{ total_player2 }}</div>
+                <div>胜率: {{ player2_win_rate }}%</div>
             </div>
         </div>
     </div>
@@ -102,6 +104,32 @@
         </table>
     </div>
     
+    <div class="monthly-summary" style="margin-top: 30px;">
+        <h2 style="text-align: center;">按月汇总</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>月份</th>
+                    <th>{{ match.player1 }}得分</th>
+                    <th>{{ match.player2 }}得分</th>
+                    <th>{{ match.player1 }}胜率</th>
+                    <th>{{ match.player2 }}胜率</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for month, data in monthly_data.items() %}
+                <tr>
+                    <td>{{ month }}</td>
+                    <td>{{ data.player1_score }}</td>
+                    <td>{{ data.player2_score }}</td>
+                    <td>{{ data.player1_win_rate }}%</td>
+                    <td>{{ data.player2_win_rate }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     <div style="margin-top: 30px; text-align: center;">
         <a href="{{ url_for('export_scores', match_id=match.id|int) }}" class="btn" style="background-color: #2196F3; text-decoration: none; padding: 10px 15px; border-radius: 4px;">导出比分</a>
         <a href="{{ url_for('import_scores', match_id=match.id) }}" class="btn" style="background-color: #FF9800; margin-left: 20px; text-decoration: none; padding: 10px 15px; border-radius: 4px;">导入比分</a>

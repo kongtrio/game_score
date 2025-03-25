@@ -59,8 +59,43 @@ def stats(match_id):
     total_player1 = sum(score.player1_score for score in scores)
     total_player2 = sum(score.player2_score for score in scores)
     
+    # 计算胜率
+    total_matches = len(scores)
+    player1_wins = sum(1 for score in scores if score.player1_score > score.player2_score)
+    player2_wins = sum(1 for score in scores if score.player2_score > score.player1_score)
+    player1_win_rate = round(player1_wins / total_matches * 100, 2) if total_matches > 0 else 0
+    player2_win_rate = round(player2_wins / total_matches * 100, 2) if total_matches > 0 else 0
+    
+    # 按月汇总数据
+    monthly_data = {}
+    for score in scores:
+        month_key = score.recorded_at.strftime('%Y-%m')
+        if month_key not in monthly_data:
+            monthly_data[month_key] = {
+                'player1_score': 0,
+                'player2_score': 0,
+                'player1_wins': 0,
+                'player2_wins': 0,
+                'total': 0
+            }
+        
+        monthly_data[month_key]['player1_score'] += score.player1_score
+        monthly_data[month_key]['player2_score'] += score.player2_score
+        if score.player1_score > score.player2_score:
+            monthly_data[month_key]['player1_wins'] += 1
+        elif score.player2_score > score.player1_score:
+            monthly_data[month_key]['player2_wins'] += 1
+        monthly_data[month_key]['total'] += 1
+    
+    # 计算每月胜率
+    for month in monthly_data.values():
+        month['player1_win_rate'] = round(month['player1_wins'] / month['total'] * 100, 2) if month['total'] > 0 else 0
+        month['player2_win_rate'] = round(month['player2_wins'] / month['total'] * 100, 2) if month['total'] > 0 else 0
+    
     return render_template('stats.html', match=match, scores=scores, 
-                         total_player1=total_player1, total_player2=total_player2)
+                         total_player1=total_player1, total_player2=total_player2,
+                         player1_win_rate=player1_win_rate, player2_win_rate=player2_win_rate,
+                         monthly_data=monthly_data)
 
 @app.route('/export_scores/<int:match_id>')
 def export_scores(match_id):
@@ -106,7 +141,11 @@ def import_scores(match_id):
             for row in csv_reader:
                 if len(row) == 3:
                     try:
-                        recorded_date = datetime.strptime(row[0], '%Y-%m-%d')
+                        try:
+                            recorded_date = datetime.strptime(row[0], '%Y-%m-%d')
+                        except ValueError:
+                            recorded_date = datetime.strptime(row[0], '%Y%m%d')
+                            
                         player1_score = int(row[1])
                         player2_score = int(row[2])
                         
