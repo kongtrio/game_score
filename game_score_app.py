@@ -1,13 +1,31 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_file, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import csv
 import io
+from functools import wraps
+import logging
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game_scores.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+# Configure logging
+logging.basicConfig(filename='game_score.log', level=logging.INFO, 
+                    format='%(asctime)s - %(message)s')
+
+# Hardcoded password
+PASSWORD = '114433'
+
+# Authentication decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 class Match(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,12 +41,28 @@ class Score(db.Model):
     recorded_at = db.Column(db.DateTime, default=datetime.now)
     match = db.relationship('Match', backref=db.backref('scores', lazy=True))
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if request.form['password'] == PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        return render_template('login.html', error='Incorrect password')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
 @app.route('/')
+@login_required
 def index():
     matches = Match.query.all()
     return render_template('index.html', matches=matches)
 
 @app.route('/add_match', methods=['GET', 'POST'])
+@login_required
 def add_match():
     if request.method == 'POST':
         player1 = request.form['player1']
@@ -40,6 +74,7 @@ def add_match():
     return render_template('add_match.html')
 
 @app.route('/record_score/<int:match_id>', methods=['GET', 'POST'])
+@login_required
 def record_score(match_id):
     match = Match.query.get_or_404(match_id)
     if request.method == 'POST':
@@ -52,6 +87,7 @@ def record_score(match_id):
     return render_template('record_score.html', match=match)
 
 @app.route('/stats/<int:match_id>')
+@login_required
 def stats(match_id):
     match = Match.query.get_or_404(match_id)
     scores = Score.query.filter_by(match_id=match_id).all()
@@ -98,6 +134,7 @@ def stats(match_id):
                          monthly_data=monthly_data)
 
 @app.route('/export_scores/<int:match_id>')
+@login_required
 def export_scores(match_id):
     match = Match.query.get_or_404(match_id)
     scores = Score.query.filter_by(match_id=match_id).all()
@@ -122,6 +159,7 @@ def export_scores(match_id):
     )
 
 @app.route('/import_scores/<int:match_id>', methods=['GET', 'POST'])
+@login_required
 def import_scores(match_id):
     match = Match.query.get_or_404(match_id)
     
@@ -163,6 +201,26 @@ def import_scores(match_id):
             return redirect(url_for('stats', match_id=match_id))
     
     return render_template('import_scores.html', match=match)
+
+@app.route('/delete_score/<int:score_id>', methods=['POST'])
+@login_required
+def delete_score(score_id):
+    score = Score.query.get_or_404(score_id)
+    reason = request.form.get('reason', '').strip()
+    
+    if not reason:
+        return 'Reason is required', 400
+    
+    # Log the deletion
+    logging.info(f'Score deleted - ID: {score_id}, Match ID: {score.match_id}, '
+                f'Player1: {score.match.player1}, Player2: {score.match.player2}, '
+                f'Reason: {reason}, Deleted by: {session.get("username", "Unknown")}')
+    
+    db.session.delete(score)
+    db.session.commit()
+    return redirect(url_for('stats', match_id=score.match_id))
+
+app.secret_key = 'super_secret_key'
 
 if __name__ == '__main__':
     with app.app_context():

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>比赛统计 - {{ match.player1 }} vs {{ match.player2 }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -90,6 +91,7 @@
                     <th>日期</th>
                     <th>{{ match.player1 }}得分</th>
                     <th>{{ match.player2 }}得分</th>
+                    <th>操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -98,6 +100,10 @@
                     <td>{{ score.recorded_at.strftime('%Y-%m-%d') }}</td>
                     <td>{{ score.player1_score }}</td>
                     <td>{{ score.player2_score }}</td>
+                    <td>
+                      <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" 
+                              data-score-id="{{ score.id }}">删除</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -136,5 +142,41 @@
     </div>
     
     <a href="{{ url_for('index') }}" class="back-link">返回首页</a>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">删除比分</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="deleteForm" method="POST">
+              <div class="form-group">
+                <label for="reason">删除原因:</label>
+                <textarea class="form-control" id="reason" name="reason" required></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="submit" form="deleteForm" class="btn btn-danger">确认删除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var scoreId = button.data('score-id');
+        var form = $('#deleteForm');
+        form.attr('action', '/delete_score/' + scoreId);
+      });
+    </script>
 </body>
 </html>
