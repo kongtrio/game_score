@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导入比分 - {{ match.player1 }} vs {{ match.player2 }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .upload-form {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .file-input {
+            margin: 15px 0;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2196F3;
+            text-decoration: none;
+        }
+        .note {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>导入比分</h1>
+    <div style="text-align: center; margin-bottom: 20px;">
+        {{ match.player1 }} vs {{ match.player2 }}
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" class="upload-form">
+        <div class="file-input">
+            <input type="file" name="file" accept=".csv" required>
+        </div>
+        <button type="submit" class="btn">导入CSV文件</button>
+    </form>
+    
+    <div class="note">
+        <p>CSV文件格式要求：</p>
+        <p>第一行: 日期,选手1得分,选手2得分</p>
+        <p>后续行: 日期(YYYY-MM-DD),数字,数字</p>
+    </div>
+    
+    <a href="{{ url_for('stats', match_id=match.id) }}" class="back-link">返回统计页面</a>
+</body>
+</html>

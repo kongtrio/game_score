@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比赛统计 - {{ match.player1 }} vs {{ match.player2 }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .stats-summary {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .total-scores {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .player-score {
+            text-align: center;
+        }
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .score-history {
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2196F3;
+            text-decoration: none;
+        }
+        .match-title {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>比赛统计</h1>
+    <div class="match-title">{{ match.player1 }} vs {{ match.player2 }}</div>
+    
+    <div class="stats-summary">
+        <h2>总得分</h2>
+        <div class="total-scores">
+            <div class="player-score">
+                <div>{{ match.player1 }}</div>
+                <div class="score-value">{{ total_player1 }}</div>
+            </div>
+            <div class="player-score">
+                <div>{{ match.player2 }}</div>
+                <div class="score-value">{{ total_player2 }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="score-history">
+        <h2>历史比分记录</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>{{ match.player1 }}得分</th>
+                    <th>{{ match.player2 }}得分</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for score in scores %}
+                <tr>
+                    <td>{{ score.recorded_at.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ score.player1_score }}</td>
+                    <td>{{ score.player2_score }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="{{ url_for('export_scores', match_id=match.id|int) }}" class="btn" style="background-color: #2196F3; text-decoration: none; padding: 10px 15px; border-radius: 4px;">导出比分</a>
+        <a href="{{ url_for('import_scores', match_id=match.id) }}" class="btn" style="background-color: #FF9800; margin-left: 20px; text-decoration: none; padding: 10px 15px; border-radius: 4px;">导入比分</a>
+    </div>
+    
+    <a href="{{ url_for('index') }}" class="back-link">返回首页</a>
+</body>
+</html>

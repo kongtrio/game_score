@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比赛计分系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .match-list {
+            list-style: none;
+            padding: 0;
+        }
+        .match-item {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .actions a {
+            margin-left: 10px;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+        .add-score {
+            background: #4CAF50;
+            color: white;
+        }
+        .view-stats {
+            background: #2196F3;
+            color: white;
+        }
+        .add-match-btn {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background: #FF9800;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>比赛计分系统</h1>
+    
+    <a href="{{ url_for('add_match') }}" class="add-match-btn">添加新比赛</a>
+    
+    <ul class="match-list">
+        {% for match in matches %}
+        <li class="match-item">
+            <span>{{ match.player1 }} vs {{ match.player2 }}</span>
+            <div class="actions">
+                <a href="{{ url_for('record_score', match_id=match.id) }}" class="add-score">记录比分</a>
+                <a href="{{ url_for('stats', match_id=match.id) }}" class="view-stats">查看统计</a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

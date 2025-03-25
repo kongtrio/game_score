@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记录比分 - {{ match.player1 }} vs {{ match.player2 }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2196F3;
+            text-decoration: none;
+        }
+        .player-names {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>记录比分</h1>
+    <div class="player-names">{{ match.player1 }} vs {{ match.player2 }}</div>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="player1_score">{{ match.player1 }}得分:</label>
+            <input type="number" id="player1_score" name="player1_score" min="0" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="player2_score">{{ match.player2 }}得分:</label>
+            <input type="number" id="player2_score" name="player2_score" min="0" required>
+        </div>
+        
+        <button type="submit" class="btn">保存比分</button>
+    </form>
+    
+    <a href="{{ url_for('index') }}" class="back-link">返回首页</a>
+</body>
+</html>
