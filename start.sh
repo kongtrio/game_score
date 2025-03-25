@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 启动SSH隧道管理应用
-echo "正在启动SSH隧道管理应用..."
+echo "正在启动比分统计应用..."
 
 # 检查是否已安装nohup
 if ! command -v nohup &> /dev/null; then
@@ -21,7 +21,7 @@ nohup python game_score_app.py > app.log 2>&1 &
 # 检查是否启动成功
 sleep 2
 if ps aux | grep -q 'game_score_app.py'; then
-    echo "SSH隧道管理应用已启动，日志输出到app.log"
+    echo "比分统计页面已启动，日志输出到app.log"
     echo "PID: $(ps aux | grep '[a]pp.py' | awk '{print $2}')"
 else
     echo "启动失败，请检查app.log查看错误信息"
